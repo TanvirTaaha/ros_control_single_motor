@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<launch>
+
+    <rosparam file="$(find ros_control_single_motor)/config/controllers.yaml" command="load" ns="/" />
+    <rosparam file="$(find ros_control_single_motor)/config/joint_limits.yaml" command="load" ns="/" />
+
+    <arg name="urdf_file" default="$(find ros_control_single_motor)/urdf/servo_motor.urdf.xacro"/>
+    <arg name="gui" default="true" />
+
+    <param name="use_gui" value="$(arg gui)"/>
+    <param name="robot_description" textfile="$(arg urdf_file)"/>
+
+    <node name="single_motor_hardware_interface" pkg="ros_control_single_motor" type="single_motor_hardware_interface" output="screen"/>
+
+    <node name="arduino_agent" pkg="ros_control_single_motor" type="arduino_agent.py" output="screen"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
+    <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" output="screen"/>  -->
+    <node name="rviz" pkg="rviz" type="rviz"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false"
+        args="
+            /single_joint_controllers/joint_state_update
+             /single_joint_controllers/joint1_position_controller
+        "/>
+</launch>
